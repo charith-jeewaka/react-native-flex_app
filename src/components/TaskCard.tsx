@@ -16,12 +16,65 @@ export default function TaskCard({
   onDelete,
   onToggleComplete,
 }: TaskCardProps) {
+  const dueDate = task.dueDate?.toDate
+    ? task.dueDate.toDate()
+    : new Date(task.dueDate);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const normalizedDueDate = new Date(dueDate);
+  normalizedDueDate.setHours(0, 0, 0, 0);
+
+  const differenceInDays =
+    (normalizedDueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+  let dueMessage = dueDate.toLocaleDateString();
+  let dueColor = "#6B7280";
+  let dueIcon: keyof typeof Ionicons.glyphMap = "calendar-outline";
+
+  if (differenceInDays < 0) {
+    dueMessage = "Expired";
+    dueColor = "#EF4444";
+    dueIcon = "warning-outline";
+  } else if (differenceInDays === 0) {
+    dueMessage = "Due Today";
+    dueColor = "#EA580C";
+    dueIcon = "today-outline";
+  } else if (differenceInDays === 1) {
+    dueMessage = "Due Tomorrow";
+    dueColor = "#2563EB";
+    dueIcon = "calendar-outline";
+  }
+
   return (
     <View style={styles.card}>
-      {/* Title */}
-      <Text style={[styles.title, task.completed && styles.completedText]}>
-        {task.title}
-      </Text>
+      {/* Title and status badge */}
+      <View style={styles.headerRow}>
+        <Text style={[styles.title, task.completed && styles.completedText]}>
+          {task.title}
+        </Text>
+
+        <View
+          style={[
+            styles.statusBadge,
+            {
+              backgroundColor: task.completed ? "#DCFCE7" : "#FEF3C7",
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.statusText,
+              {
+                color: task.completed ? "#15803D" : "#B45309",
+              },
+            ]}
+          >
+            {task.completed ? "Completed" : "Pending"}
+          </Text>
+        </View>
+      </View>
 
       {/* Description */}
       <Text
@@ -30,27 +83,24 @@ export default function TaskCard({
         {task.description}
       </Text>
 
-      <View
-        style={[
-          styles.statusBadge,
-          {
-            backgroundColor: task.completed ? "#DCFCE7" : "#FEF3C7",
-          },
-        ]}
-      >
+      {/* Due date */}
+      <View style={styles.dateRow}>
+        <Ionicons name={dueIcon} size={18} color={dueColor} />
+
         <Text
           style={[
-            styles.statusText,
+            styles.dateText,
             {
-              color: task.completed ? "#15803D" : "#B45309",
+              color: dueColor,
+              fontWeight: "700",
             },
           ]}
         >
-          {task.completed ? "Completed" : "Pending"}
+          {dueMessage}
         </Text>
       </View>
 
-      {/* Bottom Row */}
+      {/* Bottom row */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.completeButton}
@@ -79,7 +129,7 @@ export default function TaskCard({
             <Ionicons name="create-outline" size={24} color="#2563EB" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={onDelete} style={{ marginLeft: 18 }}>
+          <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
             <Ionicons name="trash-outline" size={24} color="#EF4444" />
           </TouchableOpacity>
         </View>
@@ -106,10 +156,18 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
   title: {
+    flex: 1,
     fontSize: 18,
     fontWeight: "700",
     color: "#111827",
+    marginRight: 12,
   },
 
   description: {
@@ -122,6 +180,28 @@ const styles = StyleSheet.create({
   completedText: {
     textDecorationLine: "line-through",
     color: "#9CA3AF",
+  },
+
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+
+  statusText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 12,
+  },
+
+  dateText: {
+    marginLeft: 6,
+    fontSize: 14,
   },
 
   footer: {
@@ -146,16 +226,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  statusBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-    marginTop: 12,
-  },
 
-  statusText: {
-    fontSize: 13,
-    fontWeight: "700",
+  deleteButton: {
+    marginLeft: 18,
   },
 });

@@ -1,8 +1,17 @@
-import React, { useState } from "react";
-import {View,StyleSheet,FlatList,TouchableOpacity,
-  Text,RefreshControl,ActivityIndicator,Alert} from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Text,
+  RefreshControl,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
+import { Timestamp } from "firebase/firestore";
 
 import SearchBar from "../components/SearchBar";
 import TaskCard from "../components/TaskCard";
@@ -10,14 +19,14 @@ import AddTaskModal from "../components/AddTaskModal";
 
 import { Task } from "../models/Task";
 
-import { useEffect } from "react";
-
-import { addTask, getTasks, updateTask, deleteTask } from "../services/taskService";
-
-
+import {
+  addTask,
+  getTasks,
+  updateTask,
+  deleteTask,
+} from "../services/taskService";
 
 export default function TaskScreen() {
-
   const [refreshing, setRefreshing] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -40,18 +49,23 @@ export default function TaskScreen() {
       task.description.toLowerCase().includes(search.toLowerCase()),
   );
 
- //handle save
-  const handleSaveTask = async (title: string, description: string) => {
+  // Handle add and edit
+  const handleSaveTask = async (
+    title: string,
+    description: string,
+    dueDate: Date,
+  ) => {
     try {
       if (editingTask) {
         await updateTask(editingTask.id!, {
           title,
           description,
+          dueDate: Timestamp.fromDate(dueDate),
         });
 
         alert("Task Updated Successfully");
       } else {
-        await addTask(title, description);
+        await addTask(title, description, dueDate);
 
         alert("Task Added Successfully");
       }
@@ -67,7 +81,7 @@ export default function TaskScreen() {
     }
   };
 
-  //handle delete
+  // Handle delete
   const handleDeleteTask = (id: string) => {
     Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
       {
@@ -93,7 +107,7 @@ export default function TaskScreen() {
     ]);
   };
 
-  //handle toggle complete
+  // Handle toggle complete
   const handleToggleComplete = async (task: Task) => {
     try {
       await updateTask(task.id!, {
@@ -107,7 +121,7 @@ export default function TaskScreen() {
     }
   };
 
- //load tasks
+  // Load tasks
   const loadTasks = async () => {
     try {
       setLoading(true);
@@ -123,7 +137,7 @@ export default function TaskScreen() {
     }
   };
 
-  //pull refresh
+  // Pull refresh
   const onRefresh = async () => {
     try {
       setRefreshing(true);
@@ -134,7 +148,7 @@ export default function TaskScreen() {
     }
   };
 
-  //loading
+  // Loading
   if (loading) {
     return (
       <View
@@ -213,10 +227,6 @@ export default function TaskScreen() {
   );
 }
 
-
-
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -227,22 +237,15 @@ const styles = StyleSheet.create({
 
   fab: {
     position: "absolute",
-
     right: 25,
     bottom: 25,
-
     width: 65,
     height: 65,
-
     borderRadius: 32.5,
-
     backgroundColor: "#2563EB",
-
     justifyContent: "center",
     alignItems: "center",
-
     elevation: 8,
-
     shadowColor: "#2563EB",
     shadowOpacity: 0.4,
     shadowRadius: 10,

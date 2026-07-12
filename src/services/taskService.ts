@@ -10,11 +10,17 @@ import {
   query,
   serverTimestamp,
   updateDoc,
+  Timestamp,
 } from "firebase/firestore";
 
 import { Task } from "../models/Task";
 
-export const addTask = async (title: string, description: string) => {
+// Add Task
+export const addTask = async (
+  title: string,
+  description: string,
+  dueDate: Date,
+) => {
   const user = auth.currentUser;
 
   if (!user) throw new Error("User not logged in.");
@@ -24,9 +30,11 @@ export const addTask = async (title: string, description: string) => {
     description,
     completed: false,
     createdAt: serverTimestamp(),
+    dueDate: Timestamp.fromDate(dueDate),
   });
 };
 
+// Get Tasks
 export const getTasks = async (): Promise<Task[]> => {
   const user = auth.currentUser;
 
@@ -45,6 +53,7 @@ export const getTasks = async (): Promise<Task[]> => {
   }));
 };
 
+// Update Task
 export const updateTask = async (id: string, data: Partial<Task>) => {
   const user = auth.currentUser;
 
@@ -53,6 +62,7 @@ export const updateTask = async (id: string, data: Partial<Task>) => {
   await updateDoc(doc(db, "users", user.uid, "tasks", id), data);
 };
 
+// Delete Task
 export const deleteTask = async (id: string) => {
   const user = auth.currentUser;
 

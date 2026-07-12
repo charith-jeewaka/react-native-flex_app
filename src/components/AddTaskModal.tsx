@@ -6,13 +6,19 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { Task } from "../models/Task";
+
+import DateTimePicker, {
+  DateTimePickerAndroid,
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 interface AddTaskModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (title: string, description: string) => void;
+  onSave: (title: string, description: string, dueDate: Date) => void;
   editingTask?: Task | null;
 }
 
@@ -25,15 +31,63 @@ export default function AddTaskModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
+  const [dueDate, setDueDate] = useState<Date>(
+    new Date(Date.now() + 24 * 60 * 60 * 1000),
+  );
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   useEffect(() => {
     if (editingTask) {
       setTitle(editingTask.title);
       setDescription(editingTask.description);
+
+      if (editingTask.dueDate) {
+        if (typeof editingTask.dueDate.toDate === "function") {
+          setDueDate(editingTask.dueDate.toDate());
+        } else {
+          setDueDate(new Date(editingTask.dueDate));
+        }
+      } else {
+        setDueDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
+      }
     } else {
       setTitle("");
       setDescription("");
+
+      setDueDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
     }
   }, [editingTask, visible]);
+
+  const handleDateChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date,
+  ) => {
+    if (Platform.OS === "ios") {
+      setShowDatePicker(false);
+    }
+
+    if (event.type === "dismissed" || !selectedDate) {
+      return;
+    }
+
+    setDueDate(selectedDate);
+  };
+
+  const openDatePicker = () => {
+    if (Platform.OS === "android") {
+      DateTimePickerAndroid.open({
+        value: dueDate,
+        mode: "date",
+        minimumDate: new Date(),
+        onChange: handleDateChange,
+      });
+
+      return;
+    }
+
+    setShowDatePicker(true);
+  };
 
   const handleSave = () => {
     if (!title.trim()) {
@@ -41,16 +95,34 @@ export default function AddTaskModal({
       return;
     }
 
-    onSave(title.trim(), description.trim());
+    const selectedDueDate = new Date(dueDate);
+    selectedDueDate.setHours(23, 59, 59, 999);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDueDate.getTime() < today.getTime()) {
+      alert("Please select today or a future date.");
+      return;
+    }
+
+    onSave(title.trim(), description.trim(), dueDate);
 
     setTitle("");
     setDescription("");
+
+    setDueDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
 
     onClose();
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <View style={styles.overlay}>
         <View style={styles.container}>
           <Text style={styles.heading}>
@@ -72,6 +144,23 @@ export default function AddTaskModal({
             numberOfLines={4}
             style={[styles.input, styles.description]}
           />
+
+          <Text style={styles.dateLabel}>Due Date</Text>
+
+          <TouchableOpacity style={styles.dateButton} onPress={openDatePicker}>
+            <Text style={styles.dateButtonText}>
+              {dueDate.toLocaleDateString()}
+            </Text>
+          </TouchableOpacity>
+
+          {Platform.OS === "ios" && showDatePicker && (
+            <DateTimePicker
+              value={dueDate}
+              mode="date"
+              minimumDate={new Date()}
+              onChange={handleDateChange}
+            />
+          )}
 
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
@@ -124,6 +213,27 @@ const styles = StyleSheet.create({
   description: {
     height: 120,
     textAlignVertical: "top",
+  },
+
+  dateLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+  },
+
+  dateButton: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    backgroundColor: "#FFFFFF",
+  },
+
+  dateButtonText: {
+    fontSize: 16,
+    color: "#111827",
   },
 
   buttonRow: {
