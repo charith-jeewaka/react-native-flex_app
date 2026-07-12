@@ -7,13 +7,15 @@ import SearchBar from "../components/SearchBar";
 import TaskCard from "../components/TaskCard";
 import AddTaskModal from "../components/AddTaskModal";
 
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert } from "react-native";
 
 import { Task } from "../models/Task";
 
 import { useEffect } from "react";
 
-import { addTask, getTasks } from "../services/taskService";
+import { addTask, getTasks, updateTask } from "../services/taskService";
+
+
 
 export default function TaskScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -38,16 +40,27 @@ export default function TaskScreen() {
 
   const handleSaveTask = async (title: string, description: string) => {
     try {
-      await addTask(title, description);
+      if (editingTask) {
+        await updateTask(editingTask.id!, {
+          title,
+          description,
+        });
 
+        alert("Task Updated Successfully");
+      } else {
+        await addTask(title, description);
+
+        alert("Task Added Successfully");
+      }
+
+      setEditingTask(null);
       setModalVisible(false);
 
       await loadTasks();
-
-      alert("Task Added Successfully");
     } catch (error) {
       console.log(error);
-      alert("Failed to save task.");
+
+      alert("Something went wrong.");
     }
   };
 
@@ -130,7 +143,10 @@ export default function TaskScreen() {
       <AddTaskModal
         visible={modalVisible}
         editingTask={editingTask}
-        onClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+          setEditingTask(null);
+        }}
         onSave={handleSaveTask}
       />
     </View>
