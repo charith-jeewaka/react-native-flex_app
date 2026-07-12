@@ -1,9 +1,15 @@
 import { View, Text } from "react-native";
 
-export default function LoginScreen() {
+export default function HomeScreen() {
   return (
-    <View>
-      <Text>Home Screen</Text>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text style={{ fontSize: 28 }}>Home Screen</Text>
     </View>
   );
 }
