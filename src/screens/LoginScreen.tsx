@@ -2,8 +2,14 @@ import { View, Text } from "react-native";
 
 export default function LoginScreen() {
   return (
-    <View>
-      <Text>Login Screen</Text>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text style={{ fontSize: 28 }}>Login Screen</Text>
     </View>
   );
 }
