@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
 import HomeScreen from "../screens/HomeScreen";
 import TasksScreen from "../screens/TaskScreen";
@@ -16,14 +17,76 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabNavigator() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        // Keep the top header
+        headerShown: true,
 
-      <Tab.Screen name="Tasks" component={TasksScreen} />
+        // Header style
+        headerStyle: {
+          backgroundColor: "#007AFF",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
 
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+        // Bottom tab colors
+        tabBarActiveTintColor: "#007AFF",
+        tabBarInactiveTintColor: "gray",
 
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+        // Bottom tab icons
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap;
+
+          switch (route.name) {
+            case "Home":
+              iconName = focused ? "home" : "home-outline";
+              break;
+
+            case "Tasks":
+              iconName = focused ? "list" : "list-outline";
+              break;
+
+            case "Profile":
+              iconName = focused ? "person" : "person-outline";
+              break;
+
+            case "Settings":
+              iconName = focused ? "settings" : "settings-outline";
+              break;
+
+            default:
+              iconName = "ellipse";
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ title: "Home" }}
+      />
+
+      <Tab.Screen
+        name="Tasks"
+        component={TasksScreen}
+        options={{ title: "Tasks" }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: "Profile" }}
+      />
+
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: "Settings" }}
+      />
     </Tab.Navigator>
   );
 }
