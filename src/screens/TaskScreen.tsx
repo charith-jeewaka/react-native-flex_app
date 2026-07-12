@@ -13,7 +13,7 @@ import { Task } from "../models/Task";
 
 import { useEffect } from "react";
 
-import { addTask, getTasks, updateTask } from "../services/taskService";
+import { addTask, getTasks, updateTask, deleteTask } from "../services/taskService";
 
 
 
@@ -37,7 +37,7 @@ export default function TaskScreen() {
       task.title.toLowerCase().includes(search.toLowerCase()) ||
       task.description.toLowerCase().includes(search.toLowerCase()),
   );
-
+ //handle save
   const handleSaveTask = async (title: string, description: string) => {
     try {
       if (editingTask) {
@@ -64,6 +64,32 @@ export default function TaskScreen() {
     }
   };
 
+  //handle delete
+  const handleDeleteTask = (id: string) => {
+    Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteTask(id);
+
+            await loadTasks();
+
+            alert("Task deleted successfully.");
+          } catch (error) {
+            console.log(error);
+            alert("Failed to delete task.");
+          }
+        },
+      },
+    ]);
+  };
+ //load tasks
   const loadTasks = async () => {
     try {
       setLoading(true);
@@ -124,7 +150,7 @@ export default function TaskScreen() {
               setEditingTask(item);
               setModalVisible(true);
             }}
-            onDelete={() => {}}
+            onDelete={() => handleDeleteTask(item.id!)}
             onToggleComplete={() => {}}
           />
         )}
