@@ -15,6 +15,8 @@ import {
 
 import { Task } from "../models/Task";
 
+import { scheduleTaskNotifications } from "./notificationService";
+
 // Add Task
 export const addTask = async (
   title: string,
@@ -23,14 +25,30 @@ export const addTask = async (
 ) => {
   const user = auth.currentUser;
 
-  if (!user) throw new Error("User not logged in.");
+  if (!user) {
+    throw new Error("User not logged in.");
+  }
 
-  await addDoc(collection(db, "users", user.uid, "tasks"), {
+  const taskDocument = await addDoc(
+    collection(db, "users", user.uid, "tasks"),
+    {
+      title,
+      description,
+      completed: false,
+      createdAt: serverTimestamp(),
+      dueDate: Timestamp.fromDate(dueDate),
+      notificationIds: [],
+    },
+  );
+
+  const notificationIds = await scheduleTaskNotifications(
+    taskDocument.id,
     title,
-    description,
-    completed: false,
-    createdAt: serverTimestamp(),
-    dueDate: Timestamp.fromDate(dueDate),
+    dueDate,
+  );
+
+  await updateDoc(doc(db, "users", user.uid, "tasks", taskDocument.id), {
+    notificationIds,
   });
 };
 

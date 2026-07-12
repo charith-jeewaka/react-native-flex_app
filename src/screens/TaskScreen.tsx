@@ -17,6 +17,12 @@ import SearchBar from "../components/SearchBar";
 import TaskCard from "../components/TaskCard";
 import AddTaskModal from "../components/AddTaskModal";
 
+import {
+  cancelTaskNotifications,
+  scheduleTaskNotifications,
+  sendTestNotification
+} from "../services/notificationService";
+
 import { Task } from "../models/Task";
 
 import {
@@ -57,10 +63,19 @@ export default function TaskScreen() {
   ) => {
     try {
       if (editingTask) {
+        await cancelTaskNotifications(editingTask.notificationIds);
+
+        const notificationIds = await scheduleTaskNotifications(
+          editingTask.id!,
+          title,
+          dueDate,
+        );
+
         await updateTask(editingTask.id!, {
           title,
           description,
           dueDate: Timestamp.fromDate(dueDate),
+          notificationIds,
         });
 
         alert("Task Updated Successfully");
@@ -82,7 +97,7 @@ export default function TaskScreen() {
   };
 
   // Handle delete
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = (task: Task) => {
     Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
       {
         text: "Cancel",
@@ -93,7 +108,9 @@ export default function TaskScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await deleteTask(id);
+            await cancelTaskNotifications(task.notificationIds);
+
+            await deleteTask(task.id!);
 
             await loadTasks();
 
@@ -110,9 +127,31 @@ export default function TaskScreen() {
   // Handle toggle complete
   const handleToggleComplete = async (task: Task) => {
     try {
-      await updateTask(task.id!, {
-        completed: !task.completed,
-      });
+      const newCompletedStatus = !task.completed;
+
+      if (newCompletedStatus) {
+        await cancelTaskNotifications(task.notificationIds);
+
+        await updateTask(task.id!, {
+          completed: true,
+          notificationIds: [],
+        });
+      } else {
+        const dueDate = task.dueDate.toDate
+          ? task.dueDate.toDate()
+          : new Date(task.dueDate);
+
+        const notificationIds = await scheduleTaskNotifications(
+          task.id!,
+          task.title,
+          dueDate,
+        );
+
+        await updateTask(task.id!, {
+          completed: false,
+          notificationIds,
+        });
+      }
 
       await loadTasks();
     } catch (error) {
@@ -198,7 +237,7 @@ export default function TaskScreen() {
               setEditingTask(item);
               setModalVisible(true);
             }}
-            onDelete={() => handleDeleteTask(item.id!)}
+            onDelete={() => handleDeleteTask(item)}
             onToggleComplete={() => handleToggleComplete(item)}
           />
         )}
@@ -209,6 +248,8 @@ export default function TaskScreen() {
         onPress={() => {
           setEditingTask(null);
           setModalVisible(true);
+          //sendTestNotification();
+          
         }}
       >
         <Ionicons name="add" size={32} color="#fff" />

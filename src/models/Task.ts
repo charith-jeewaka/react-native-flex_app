@@ -5,4 +5,6 @@ export interface Task {
   completed: boolean;
   createdAt: any;
   dueDate: any;
+
+  notificationIds?: string[];
 }
