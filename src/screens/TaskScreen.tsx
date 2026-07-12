@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import {View,StyleSheet,FlatList,TouchableOpacity,Text,} from "react-native";
+import {View,StyleSheet,FlatList,TouchableOpacity,
+  Text,RefreshControl,ActivityIndicator,Alert} from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
 import SearchBar from "../components/SearchBar";
 import TaskCard from "../components/TaskCard";
 import AddTaskModal from "../components/AddTaskModal";
-
-import { ActivityIndicator, Alert } from "react-native";
 
 import { Task } from "../models/Task";
 
@@ -18,6 +17,9 @@ import { addTask, getTasks, updateTask, deleteTask } from "../services/taskServi
 
 
 export default function TaskScreen() {
+
+  const [refreshing, setRefreshing] = useState(false);
+
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const [search, setSearch] = useState("");
@@ -121,6 +123,16 @@ export default function TaskScreen() {
     }
   };
 
+  //pull refresh
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+
+      await loadTasks();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   //loading
   if (loading) {
@@ -145,9 +157,15 @@ export default function TaskScreen() {
         data={filteredTasks}
         keyExtractor={(item) => item.id ?? Math.random().toString()}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: 100,
-        }}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#2563EB"]}
+            tintColor="#2563EB"
+          />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="clipboard-outline" size={80} color="#CBD5E1" />
