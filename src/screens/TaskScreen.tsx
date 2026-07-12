@@ -37,6 +37,7 @@ export default function TaskScreen() {
       task.title.toLowerCase().includes(search.toLowerCase()) ||
       task.description.toLowerCase().includes(search.toLowerCase()),
   );
+
  //handle save
   const handleSaveTask = async (title: string, description: string) => {
     try {
@@ -89,6 +90,21 @@ export default function TaskScreen() {
       },
     ]);
   };
+
+  //handle toggle complete
+  const handleToggleComplete = async (task: Task) => {
+    try {
+      await updateTask(task.id!, {
+        completed: !task.completed,
+      });
+
+      await loadTasks();
+    } catch (error) {
+      console.log(error);
+      alert("Failed to update task.");
+    }
+  };
+
  //load tasks
   const loadTasks = async () => {
     try {
@@ -151,7 +167,7 @@ export default function TaskScreen() {
               setModalVisible(true);
             }}
             onDelete={() => handleDeleteTask(item.id!)}
-            onToggleComplete={() => {}}
+            onToggleComplete={() => handleToggleComplete(item)}
           />
         )}
       />

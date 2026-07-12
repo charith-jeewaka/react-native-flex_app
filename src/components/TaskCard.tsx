@@ -30,6 +30,26 @@ export default function TaskCard({
         {task.description}
       </Text>
 
+      <View
+        style={[
+          styles.statusBadge,
+          {
+            backgroundColor: task.completed ? "#DCFCE7" : "#FEF3C7",
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.statusText,
+            {
+              color: task.completed ? "#15803D" : "#B45309",
+            },
+          ]}
+        >
+          {task.completed ? "Completed" : "Pending"}
+        </Text>
+      </View>
+
       {/* Bottom Row */}
       <View style={styles.footer}>
         <TouchableOpacity
@@ -42,8 +62,15 @@ export default function TaskCard({
             color={task.completed ? "#22C55E" : "#6B7280"}
           />
 
-          <Text style={styles.completeText}>
-            {task.completed ? "Completed" : "Mark Complete"}
+          <Text
+            style={[
+              styles.completeText,
+              {
+                color: task.completed ? "#22C55E" : "#374151",
+              },
+            ]}
+          >
+            {task.completed ? "Completed" : "Pending"}
           </Text>
         </TouchableOpacity>
 
@@ -118,5 +145,17 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  statusBadge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginTop: 12,
+  },
+
+  statusText: {
+    fontSize: 13,
+    fontWeight: "700",
   },
 });
