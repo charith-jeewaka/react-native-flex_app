@@ -9,7 +9,7 @@ import MainTabNavigator from "./MainTabNavigator";
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Home: undefined;
+  MainApp: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,7 +27,7 @@ export default function AppNavigator() {
 
         <Stack.Screen name="Register" component={RegisterScreen} />
 
-        <Stack.Screen name="Home" component={MainTabNavigator} />
+        <Stack.Screen name="MainApp" component={MainTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

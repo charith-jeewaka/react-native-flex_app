@@ -40,7 +40,7 @@ export default function RegisterScreen() {
         password,
       );
 
-      //await sendEmailVerification(userCredential.user);
+      await sendEmailVerification(userCredential.user);
 
       await auth.signOut();
 

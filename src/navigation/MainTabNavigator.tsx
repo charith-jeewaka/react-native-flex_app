@@ -24,11 +24,12 @@ export default function MainTabNavigator() {
 
         // Header style
         headerStyle: {
-          backgroundColor: "#007AFF",
+          backgroundColor: "#2e88e9",
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          
         },
 
         // Bottom tab colors

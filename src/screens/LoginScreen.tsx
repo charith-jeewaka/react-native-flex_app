@@ -41,7 +41,8 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
       // Refresh user data
       await userCredential.user.reload();
 
-      if (!userCredential.user) {
+
+      if (!userCredential.user.emailVerified) {
         alert("Please verify your email before logging in.");
 
         await auth.signOut();
@@ -49,17 +50,9 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
         return;
       }
 
-    //   if (!userCredential.user.emailVerified) {
-    //     alert("Please verify your email before logging in.");
-
-    //     await auth.signOut();
-
-    //     return;
-    //   }
-
       alert("Login Successful!");
 
-      navigation.replace("Home");
+      navigation.replace("MainApp");
     } catch (error: any) {
       alert(error.message);
     }
