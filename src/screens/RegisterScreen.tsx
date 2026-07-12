@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
+ Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -9,6 +9,11 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation/AppNavigator";
+
+import { createUserWithEmailAndPassword,sendEmailVerification } from "firebase/auth";
+import { auth } from "../services/firebase";
+
+
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -21,6 +26,35 @@ export default function RegisterScreen() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const handleRegister = async () => {
+    if (!fullName || !email || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      await sendEmailVerification(userCredential.user);
+
+      await auth.signOut();
+
+      console.log("Verification email sent to:", userCredential.user.email);
+
+      alert(
+        "Account created successfully!\n\nA verification email has been sent to your email address. Please verify your email before logging in.",
+      );
+
+      navigation.navigate("Login");
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -53,7 +87,7 @@ export default function RegisterScreen() {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Create Account</Text>
       </TouchableOpacity>
 

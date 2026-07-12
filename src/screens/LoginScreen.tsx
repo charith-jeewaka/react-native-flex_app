@@ -32,7 +32,22 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      // Refresh user data
+      await userCredential.user.reload();
+
+      if (!userCredential.user.emailVerified) {
+        alert("Please verify your email before logging in.");
+
+        await auth.signOut();
+
+        return;
+      }
 
       alert("Login Successful!");
 
@@ -40,6 +55,7 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
     } catch (error: any) {
       alert(error.message);
     }
+    
   };
 
   return (
