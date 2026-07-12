@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import LogoutButton from "../components/LogoutButton";
 
 export default function SettingsScreen() {
   return (
@@ -10,6 +11,7 @@ export default function SettingsScreen() {
       }}
     >
       <Text style={{ fontSize: 28 }}>Settings Screen</Text>
+      <LogoutButton/>
     </View>
   );
 }
