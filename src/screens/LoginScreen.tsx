@@ -41,13 +41,21 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
       // Refresh user data
       await userCredential.user.reload();
 
-      if (!userCredential.user.emailVerified) {
+      if (!userCredential.user) {
         alert("Please verify your email before logging in.");
 
         await auth.signOut();
 
         return;
       }
+
+    //   if (!userCredential.user.emailVerified) {
+    //     alert("Please verify your email before logging in.");
+
+    //     await auth.signOut();
+
+    //     return;
+    //   }
 
       alert("Login Successful!");
 
