@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
@@ -24,6 +25,7 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -32,31 +34,29 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
     }
 
     try {
+      setLoading(true);
+
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email,
+        email.trim(),
         password,
       );
 
-      // Refresh user data
       await userCredential.user.reload();
 
-
       if (!userCredential.user.emailVerified) {
-        alert("Please verify your email before logging in.");
-
         await auth.signOut();
 
+        alert("Please verify your email before logging in.");
         return;
       }
-
-      alert("Login Successful!");
 
       navigation.replace("MainApp");
     } catch (error: any) {
       alert(error.message);
+    } finally {
+      setLoading(false);
     }
-    
   };
 
   return (
@@ -71,18 +71,33 @@ const navigation = useNavigation<LoginScreenNavigationProp>();
         style={styles.input}
         value={email}
         onChangeText={setEmail}
+        editable={!loading}
       />
 
       <TextInput
         placeholder="Password"
         secureTextEntry
+        editable={!loading}
         style={styles.input}
         value={password}
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && styles.disabledButton]}
+        onPress={handleLogin}
+        disabled={loading}
+        activeOpacity={0.8}
+      >
+        {loading ? (
+          <View style={styles.loadingRow}>
+            <ActivityIndicator size="small" color="#FFFFFF" />
+
+            <Text style={styles.buttonText}>Logging in...</Text>
+          </View>
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Register")}>
@@ -144,5 +159,14 @@ const styles = StyleSheet.create({
     marginTop: 25,
     color: "#2563EB",
     fontWeight: "600",
+  },
+  disabledButton: {
+    opacity: 0.65,
+  },
+
+  loadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
 });

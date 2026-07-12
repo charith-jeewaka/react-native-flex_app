@@ -200,16 +200,7 @@ export default function ProfileScreen() {
           onPress={handleHelp}
         />
 
-        <View style={styles.separator} />
-
-        <ProfileOption
-          icon="help-circle-outline"
-          iconColor="#ff0000"
-          iconBackground="#ECFEFF"
-          title="Log Out"
-          subtitle="Log Out from this Account"
-          onPress={handleHelp}
-        />
+        
       </View>
 
       <View style={styles.footer}>
