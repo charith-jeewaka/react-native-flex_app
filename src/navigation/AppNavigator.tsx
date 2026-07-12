@@ -3,7 +3,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
-import HomeScreen from "../screens/HomeScreen";
+
+import MainTabNavigator from "./MainTabNavigator";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -23,8 +24,10 @@ export default function AppNavigator() {
         }}
       >
         <Stack.Screen name="Login" component={LoginScreen} />
+
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+
+        <Stack.Screen name="Home" component={MainTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );
