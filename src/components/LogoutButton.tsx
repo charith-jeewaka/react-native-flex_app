@@ -11,7 +11,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 export default function LogoutButton() {
   const navigation = useNavigation<NavigationProp>();
 
-  const handleLogout = () => {
+   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
         text: "Cancel",
