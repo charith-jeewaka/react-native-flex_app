@@ -7,6 +7,7 @@ import {
   Switch,
   TouchableOpacity,
   Alert,
+  Linking
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -332,6 +333,36 @@ export default function SettingsScreen() {
               "Task Manager\nVersion 1.0.0\n\nBuilt with React Native, Expo and Firebase.",
             )
           }
+        />
+
+        <View
+          style={[
+            styles.separator,
+            {
+              backgroundColor: colors.border,
+            },
+          ]}
+        />
+
+        <SettingOptionRow
+          title="Meet Developers"
+          subtitle="Visit our developer portfolio website"
+          icon="people-outline"
+          iconColor="#7C3AED"
+          iconBackground={darkMode ? "#3B2A52" : "#F3E8FF"}
+          textColor={colors.text}
+          secondaryTextColor={colors.secondaryText}
+          onPress={async () => {
+            const url = "https://charith-jeewaka.github.io/demosite/";
+
+            const supported = await Linking.canOpenURL(url);
+
+            if (supported) {
+              await Linking.openURL(url);
+            } else {
+              Alert.alert("Error", "Unable to open the website.");
+            }
+          }}
         />
       </View>
 

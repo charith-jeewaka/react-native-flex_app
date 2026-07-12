@@ -5,6 +5,7 @@ import HomeScreen from "../screens/HomeScreen";
 import TasksScreen from "../screens/TaskScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import Header from "../components/Header";
 
 export type MainTabParamList = {
   Home: undefined;
@@ -22,14 +23,11 @@ export default function MainTabNavigator() {
         // Keep the top header
         headerShown: true,
 
-        // Header style
+        headerTitle: () => <Header title={route.name} />,
+
         headerStyle: {
           backgroundColor: "#2e88e9",
-        },
-        headerTintColor: "#fff",
-        headerTitleStyle: {
-          fontWeight: "bold",
-          
+          height: 130,
         },
 
         // Bottom tab colors
